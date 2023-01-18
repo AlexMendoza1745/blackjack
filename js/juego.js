@@ -1,16 +1,16 @@
 (() => {
   "use strict";
   //variables y constantes
-  let cartas = [],
+
+  let cartas = [],  
     tipos = ["C", "D", "H", "S"],
     especiales = ["A", "J", "K", "Q"],
-    carta,
-    //puntosJugador = 0,
-   // puntosComputadora = 0,
-puntosJugadores=[];
-    perdio,
-    divCartaJugador = document.querySelector("#jugador-cartas"),
-    divCartaComputadora = document.querySelector("#computadora-cartas");
+   puntajeJugador=0,
+   perdio,
+   puntosJugadores=[];
+
+ 
+   const divCartaJugadores = document.querySelectorAll('.divCartas')
   const pedir = document.querySelector("#pedir"),
     puntosHTMLJ = document.querySelectorAll("small"),
     puntosHTMLC = document.querySelectorAll("small"),
@@ -56,64 +56,73 @@ puntosJugadores=[];
   //crearCartas();
   /////////////////////////
   //eventos
+
   pedir.addEventListener("click", () => {
     crearCartas();
     const carta = pedirCarta();
     console.log(carta);
-    puntosJugador = puntosJugador + valorCarta(carta);
-    console.log(puntosJugador);
-    puntosHTMLJ[0].innerText = puntosJugador;
-    const imgCarta = document.createElement("img");
-    imgCarta.src = `/assets/img/cartas/${carta}.png`;
-    imgCarta.classList.add("carta");
-    divCartaJugador.append(imgCarta);
+   puntajeJugador+=acumularPuntos(0,carta);
+  console.log("puntaje jugador: "+puntajeJugador)
+   crearCarta(carta,0);
     //const verificacion=verificar();
     if (verificar()) {
-      juegaComputadora(puntosJugador);
+      juegaComputadora(puntajeJugador);
     }
   });
+
+//////////////////////////////////////////
 
   detenerJuego.addEventListener("click", () => {
     pedir.disabled = true;
     detenerJuego.disabled = true;
-    console.warn("has obtenido: " + puntosJugador + " puntos");
-    juegaComputadora(puntosJugador);
+    console.warn("has obtenido: " + puntajeJugador + " puntos");
+    juegaComputadora(puntajeJugador);
   });
 
   //funcion verificar
   function verificar() {
-    if (puntosJugador > 21) {
+    if (puntajeJugador > 21) {
       console.warn("has perdido");
       pedir.disabled = true;
       return true;
-    } else if (puntosJugador === 21) {
+    } else if (puntajeJugador === 21) {
       console.log("has logrado 21!!");
       pedir.disabled = true;
       return true;
     }
     return false;
   }
-  
-  const acumularPuntos=(turno)=>{
-    puntosJugadores[turno] = puntosJugadores[turno] + valorCarta(carta);
-      puntosHTMLC[1].innerText = puntosJugador;
+   //turno: 0 = primero jugador y el ultimo sera de la computadora
+  const acumularPuntos=(turno,carta)=>{
+    console.log(carta);
+   // puntosJugadores[turno]=puntajeJugador[turno];
+    puntosJugadores[turno] = valorCarta(carta);
+    puntosHTMLC[turno].innerText = puntosJugadores[turno];
+      return puntosJugadores[turno];
   };
-//turno de la computadora
-  const juegaComputadora = (jugador) => {
-    do {
-      const carta = pedirCarta();
-      //console.log('carta de la computadora: '+carta);
-      puntosComputadora = puntosComputadora + valorCarta(carta);
-      puntosHTMLC[1].innerText = puntosComputadora;
-      const imgCarta = document.createElement("img");
+
+  //crear carta
+
+const crearCarta=(carta,turno)=>{
+  const imgCarta = document.createElement("img");
       imgCarta.src = `/assets/img/cartas/${carta}.png`;
       imgCarta.classList.add("carta");
-      divCartaComputadora.append(imgCarta);
-      //console.log(mensajeGanador)
+      divCartaJugadores[turno].append(imgCarta);
+}
+  //////////
+
+//turno de la computadora
+  const juegaComputadora = (jugador) => {
+    let puntosComputadora=0;
+    do {
+      const carta = pedirCarta();
+      puntosComputadora+= acumularPuntos(1,carta);
+     crearCarta(carta,1);
+     console.log("puntos computadora: "+puntosComputadora);
     } while (puntosComputadora <= jugador && jugador <= 21);
     perdio = puntosComputadora > 21 ? true : false;
     setTimeout(() => {
-      if (perdio == true && puntosJugador <= 21) {
+      if (perdio == true && puntajeJugador <= 21) {
         alert("ha ganado el jugador ");
       } else if (puntosComputadora <= 21) {
         alert("ha ganado la computadora ");
@@ -128,21 +137,18 @@ puntosJugadores=[];
     console.clear();
     cartas = [];
     pedir.disabled = false;
-    puntosJugador = 0;
-    puntosComputadora = 0;
+    //puntosJugador = 0;
+    //puntosComputadora = 0;
     detenerJuego.disabled = false;
-    puntosHTMLC[0].innerText = 0;
-    puntosHTMLJ[1].innerText = 0;
-    divCartaComputadora.innerHTML = "";
-    divCartaJugador.innerHTML = "";
+    puntosHTMLC.forEach(elemt=>elemt.innerText=0);
+    divCartaJugadores.forEach(elemt=>elemt.innerText=0);
     const imgCarta = document.createElement("img");
     imgCarta.src = `/assets/img/cartas/red_back.png`;
     imgCarta.classList.add("carta");
-    divCartaComputadora.append(imgCarta);
     const imgCarta2 = document.createElement("img");
     imgCarta2.src = `/assets/img/cartas/red_back.png`;
     imgCarta2.classList.add("carta");
-    divCartaJugador.append(imgCarta2);
+    divCartaJugadores.append(imgCarta2);
     console.log({ cartas });
   });
 })();
